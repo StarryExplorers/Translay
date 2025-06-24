@@ -59,6 +59,12 @@
     .theme-switcher {
       margin: 10px;
     }
+    #speakBtn {
+      display: none;
+      margin-top: 10px;
+      background-color: #4CAF50;
+      color: white;
+    }
     /* Themes */
     body.theme-blush { --bg: #ffe4e1; --fg: #5c3c42; }
     body.theme-midnight { --bg: #0d1b2a; --fg: #e0e1dd; }
@@ -144,6 +150,7 @@
     <textarea id="inputText" rows="5" placeholder="Enter text..."></textarea>
     <button onclick="translateText()">Translate</button>
     <div class="output" id="outputText">Translation will appear here...</div>
+    <button id="speakBtn" onclick="speakTranslation()">🔊 Speak</button>
   </div>
 
   <script>
@@ -156,13 +163,20 @@
       const from = document.getElementById('fromLang').value;
       const to = document.getElementById('toLang').value;
       if (!text) return;
-      const res = await fetch("https://libretranslate.de/translate", {
+      const res = await fetch("https://libretranslate.com/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ q: text, source: from, target: to, format: "text" })
       });
       const data = await res.json();
       document.getElementById("outputText").innerText = data.translatedText;
+      document.getElementById("speakBtn").style.display = 'inline-block';
+    }
+
+    function speakTranslation() {
+      const output = document.getElementById("outputText").innerText;
+      const utterance = new SpeechSynthesisUtterance(output);
+      speechSynthesis.speak(utterance);
     }
   </script>
 </body>

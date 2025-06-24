@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Translay</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #000000;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--fg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      transition: background 0.4s, color 0.4s;
+    }
+    header {
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    .container {
+      max-width: 600px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+    select, textarea, button {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      resize: vertical;
+    }
+    button {
+      background: rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    .output {
+      border: 1px solid rgba(0,0,0,0.2);
+      padding: 10px;
+      min-height: 80px;
+      border-radius: 8px;
+      background-color: rgba(0,0,0,0.05);
+    }
+    .theme-switcher {
+      margin: 10px;
+    }
+    /* Themes */
+    body.theme-blush { --bg: #ffe4e1; --fg: #5c3c42; }
+    body.theme-midnight { --bg: #0d1b2a; --fg: #e0e1dd; }
+    body.theme-ocean { --bg: #d0f0f9; --fg: #004e64; }
+    body.theme-sunset { --bg: #ffb347; --fg: #4b0082; }
+    body.theme-mint { --bg: #e0f7fa; --fg: #006064; }
+    body.theme-candy { --bg: #fcd5ce; --fg: #7f5af0; }
+    body.theme-neon { --bg: #0f0f0f; --fg: #00f0ff; }
+    body.theme-autumn { --bg: #fff3e0; --fg: #6d4c41; }
+    body.theme-cyber { --bg: #212121; --fg: #00e676; }
+    body.theme-royal { --bg: #7f00ff; --fg: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Translay</h1>
+    <select class="theme-switcher" onchange="setTheme(this.value)">
+      <option value="">Choose Theme</option>
+      <option value="theme-blush">Blush Bloom</option>
+      <option value="theme-midnight">Midnight Sky</option>
+      <option value="theme-ocean">Ocean Wave</option>
+      <option value="theme-sunset">Sunset Glow</option>
+      <option value="theme-mint">Frosty Mint</option>
+      <option value="theme-candy">Candy Pop</option>
+      <option value="theme-neon">Neon Space</option>
+      <option value="theme-autumn">Autumn Spice</option>
+      <option value="theme-cyber">Cyber Green</option>
+      <option value="theme-royal">Royal Purple</option>
+    </select>
+  </header>
+
+  <div class="container">
+    <select id="fromLang">
+      <option value="en">English</option>
+      <option value="es">Spanish</option>
+      <option value="fr">French</option>
+      <option value="de">German</option>
+      <option value="it">Italian</option>
+      <option value="pt">Portuguese</option>
+      <option value="ru">Russian</option>
+      <option value="zh">Chinese</option>
+      <option value="ja">Japanese</option>
+      <option value="ko">Korean</option>
+      <option value="ar">Arabic</option>
+      <option value="hi">Hindi</option>
+      <option value="uk">Ukrainian</option>
+      <option value="el">Greek</option>
+      <option value="id">Indonesian</option>
+      <option value="vi">Vietnamese</option>
+      <option value="tr">Turkish</option>
+      <option value="pl">Polish</option>
+      <option value="fa">Farsi</option>
+      <option value="ga">Irish</option>
+      <option value="he">Hebrew</option>
+      <option value="tl">Filipino</option>
+      <option value="nl">Dutch</option>
+    </select>
+    <select id="toLang">
+      <option value="es">Spanish</option>
+      <option value="en">English</option>
+      <option value="fr">French</option>
+      <option value="de">German</option>
+      <option value="it">Italian</option>
+      <option value="pt">Portuguese</option>
+      <option value="ru">Russian</option>
+      <option value="zh">Chinese</option>
+      <option value="ja">Japanese</option>
+      <option value="ko">Korean</option>
+      <option value="ar">Arabic</option>
+      <option value="hi">Hindi</option>
+      <option value="uk">Ukrainian</option>
+      <option value="el">Greek</option>
+      <option value="id">Indonesian</option>
+      <option value="vi">Vietnamese</option>
+      <option value="tr">Turkish</option>
+      <option value="pl">Polish</option>
+      <option value="fa">Farsi</option>
+      <option value="ga">Irish</option>
+      <option value="he">Hebrew</option>
+      <option value="tl">Filipino</option>
+      <option value="nl">Dutch</option>
+    </select>
+    <textarea id="inputText" rows="5" placeholder="Enter text..."></textarea>
+    <button onclick="translateText()">Translate</button>
+    <div class="output" id="outputText">Translation will appear here...</div>
+  </div>
+
+  <script>
+    function setTheme(theme) {
+      document.body.className = theme;
+    }
+
+    async function translateText() {
+      const text = document.getElementById('inputText').value.trim();
+      const from = document.getElementById('fromLang').value;
+      const to = document.getElementById('toLang').value;
+      if (!text) return;
+      const res = await fetch("https://libretranslate.de/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ q: text, source: from, target: to, format: "text" })
+      });
+      const data = await res.json();
+      document.getElementById("outputText").innerText = data.translatedText;
+    }
+  </script>
+</body>
+</html>

@@ -76,6 +76,9 @@
     body.theme-autumn { --bg: #fff3e0; --fg: #6d4c41; }
     body.theme-cyber { --bg: #212121; --fg: #00e676; }
     body.theme-royal { --bg: #7f00ff; --fg: #f5f5f5; }
+    body.theme-glacier { --bg: #e3f2fd; --fg: #0d47a1; }
+    body.theme-sakura { --bg: #fff0f5; --fg: #c71585; }
+    body.theme-lemonade { --bg: #fffacd; --fg: #ffa500; }
   </style>
 </head>
 <body>
@@ -93,6 +96,9 @@
       <option value="theme-autumn">Autumn Spice</option>
       <option value="theme-cyber">Cyber Green</option>
       <option value="theme-royal">Royal Purple</option>
+      <option value="theme-glacier">Glacier Blue</option>
+      <option value="theme-sakura">Sakura Pink</option>
+      <option value="theme-lemonade">Lemonade Zing</option>
     </select>
   </header>
 
@@ -163,14 +169,23 @@
       const from = document.getElementById('fromLang').value;
       const to = document.getElementById('toLang').value;
       if (!text) return;
-      const res = await fetch("https://libretranslate.com/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ q: text, source: from, target: to, format: "text" })
-      });
-      const data = await res.json();
-      document.getElementById("outputText").innerText = data.translatedText;
-      document.getElementById("speakBtn").style.display = 'inline-block';
+
+      try {
+        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
+        const data = await res.json();
+        console.log(data);
+        if (data.responseData && data.responseData.translatedText) {
+          document.getElementById("outputText").innerText = data.responseData.translatedText;
+          document.getElementById("speakBtn").style.display = 'inline-block';
+        } else {
+          document.getElementById("outputText").innerText = "Translation failed. Try again.";
+          document.getElementById("speakBtn").style.display = 'none';
+        }
+      } catch (error) {
+        console.error("Translation error:", error);
+        document.getElementById("outputText").innerText = "Oops! Something went wrong.";
+        document.getElementById("speakBtn").style.display = 'none';
+      }
     }
 
     function speakTranslation() {
